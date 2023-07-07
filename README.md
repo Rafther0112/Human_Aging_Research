@@ -1,2 +1,2 @@
-# Numerical_solutions_ODEs
+# Numerical_solutions_ODE
 Numerical solutions of ordinary differential equations 
