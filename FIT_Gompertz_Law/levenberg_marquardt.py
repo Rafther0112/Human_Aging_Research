@@ -23,7 +23,7 @@ def lm_func(t,p):
 
     """
 
-    y_hat = p[0] * np.exp(t * p[1])
+    y_hat = p[0,0] * np.exp(t * p[1,0])
 
     return y_hat
 
@@ -63,25 +63,25 @@ def lm_FD_J(t,p,y,dp):
     # START --- loop over all parameters
     for j in range(n):
         # parameter perturbation
-        del_[j] = dp[j] * (1+abs(p[j]))
+        del_[j,0] = dp[j,0] * (1+abs(p[j,0]))
         # perturb parameter p(j)
-        p[j]   = ps[j] + del_[j]
+        p[j,0]   = ps[j,0] + del_[j,0]
         
-        if del_[j] != 0:
+        if del_[j,0] != 0:
             y1 = lm_func(t,p)
             func_calls = func_calls + 1
             
-            if dp[j] < 0: 
+            if dp[j,0] < 0: 
                 # backwards difference
-                J[:,j] = (y1-y)/del_[j]
+                J[:,j] = (y1-y)/del_[j,0]
             else:
                 # central difference, additional func call
-                p[j] = ps[j] - del_[j]
-                J[:,j] = (y1-lm_func(t,p)) / (2 * del_[j])
+                p[j,0] = ps[j,0] - del_[j]
+                J[:,j] = (y1-lm_func(t,p)) / (2 * del_[j,0])
                 func_calls = func_calls + 1
         
         # restore p(j)
-        p[j]=ps[j]
+        p[j,0]=ps[j,0]
         
     return J
     

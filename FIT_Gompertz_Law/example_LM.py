@@ -101,8 +101,7 @@ x = datos_generales["Ages"][40:60]
 
 y = datos_generales["1933-1939"][40:60]
 
-p_init = np.array([1,1])   
-print(np.exp(y * p_init[0]))
+p_init = np.array([[1,1],[1,1]]) 
 
 p_fit,Chi_sq,sigma_p,sigma_y,corr,R_sq,cvg_hst = main(x,y,p_init)
 
