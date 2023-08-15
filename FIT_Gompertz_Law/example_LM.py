@@ -98,10 +98,10 @@ for specific_year in years_of_interes:
     datos_generales[specific_year] = death_rate
 
 x = datos_generales["Ages"][40:60]
-
+x = x.T
 y = datos_generales["1933-1939"][40:60]
 
-p_init = np.array([[1,1],[1,1]]) 
+p_init = np.array([[0.008,0.06]]).T
 
 p_fit,Chi_sq,sigma_p,sigma_y,corr,R_sq,cvg_hst = main(x,y,p_init)
 

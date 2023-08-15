@@ -445,9 +445,8 @@ def lm(p,t,y_dat):
     
     return p,redX2,sigma_p,sigma_y,corr_p,R_sq,cvg_hst
 
+"""
 def make_lm_plots(x,y,cvg_hst):
-    
-
     # extract parameters data
     p_hst  = cvg_hst[:,2:]
     p_fit  = p_hst[-1,:]
@@ -513,3 +512,4 @@ def make_lm_plots(x,y,cvg_hst):
     ax4.set_title('Objective Function',fontdict=font_title)
     ax4.zaxis.set_rotate_label(False)
     ax4.azim = 225
+"""
