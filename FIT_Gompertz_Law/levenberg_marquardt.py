@@ -23,7 +23,7 @@ def lm_func(t,p):
 
     """
 
-    y_hat = p[0,0]*np.exp(t*p[1,0])
+    y_hat = p[0]*np.exp(t*p[1])
 
     return y_hat
 
