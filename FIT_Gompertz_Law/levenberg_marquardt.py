@@ -9,29 +9,22 @@ import matplotlib.pyplot as plt
 
 def lm_func(t,p):
     """
-
     Define model function used for nonlinear least squares curve-fitting.
-
     Parameters
     ----------
     t     : independent variable values (assumed to be error-free) (m x 1)
     p     : parameter values , n = 4 in these examples             (n x 1)
-
     Returns
     -------
     y_hat : curve-fit fctn evaluated at points t and with parameters p (m x 1)
-
     """
-
     y_hat = p[0,0] * np.exp(t * p[1,0])
 
     return y_hat
 
 def lm_FD_J(t,p,y,dp):
     """
-
     Computes partial derivates (Jacobian) dy/dp via finite differences.
-
     Parameters
     ----------
     t  :     independent variables used as arg to lm_func (m x 1) 
@@ -41,11 +34,9 @@ def lm_FD_J(t,p,y,dp):
                 - dp(j)>0 central differences calculated
                 - dp(j)<0 one sided differences calculated
                 - dp(j)=0 sets corresponding partials to zero; i.e. holds p(j) fixed
-
     Returns
     -------
     J :      Jacobian Matrix (n x m)
-
     """
 
     global func_calls
@@ -79,12 +70,10 @@ def lm_FD_J(t,p,y,dp):
                 p[j,0] = ps[j,0] - del_[j]
                 J[:,j] = (y1-lm_func(t,p)) / (2 * del_[j,0])
                 func_calls = func_calls + 1
-        
         # restore p(j)
         p[j,0]=ps[j,0]
         
     return J
-    
 
 def lm_Broyden_J(p_old,y_old,J,p,y):
     """
@@ -103,7 +92,6 @@ def lm_Broyden_J(p_old,y_old,J,p,y):
     J     :     rank-1 update to Jacobian Matrix J(i,j)=dy(i)/dp(j) (m x n)
 
     """
-    
     h = p - p_old
     
     a = (np.array([y - y_old]).T - J@h)@h.T
@@ -111,7 +99,6 @@ def lm_Broyden_J(p_old,y_old,J,p,y):
 
     # Broyden rank-1 update eq'n
     J = J + a/b
-
     return J
 
 def lm_matx(t,p_old,y_old,dX2,J,p,y_dat,weight,dp):
@@ -172,8 +159,6 @@ def lm_matx(t,p_old,y_old,dX2,J,p,y_dat,weight,dp):
     JtWJ  = J.T @ ( J * ( weight * np.ones((1,Npar)) ) )
     
     JtWdy = J.T @ ( weight * delta_y )
-    
-    
     return JtWJ,JtWdy,Chi_sq,y_hat,J
 
 
@@ -247,7 +232,7 @@ def lm(p,t,y_dat):
     # upper bounds for parameter values       
     p_max = 100*abs(p)
 
-    MaxIter       = 1000        # maximum number of iterations
+    MaxIter       = 10000        # maximum number of iterations
     epsilon_1     = 1e-3        # convergence tolerance for gradient
     epsilon_2     = 1e-3        # convergence tolerance for parameters
     epsilon_4     = 1e-1        # determines acceptance of a L-M step
@@ -292,7 +277,7 @@ def lm(p,t,y_dat):
     # -------- Start Main Loop ----------- #
     while not stop and iteration <= MaxIter:
         
-        iteration = iteration + 1
+        iteration += 1
  
         # incremental change in parameters
         # Marquardt
@@ -444,72 +429,3 @@ def lm(p,t,y_dat):
         print('standard error = %0.2f %%' % error_p[i,0])
     
     return p,redX2,sigma_p,sigma_y,corr_p,R_sq,cvg_hst
-
-"""
-def make_lm_plots(x,y,cvg_hst):
-    # extract parameters data
-    p_hst  = cvg_hst[:,2:]
-    p_fit  = p_hst[-1,:]
-    y_fit = lm_func(x,np.array([p_fit]).T)
-    
-    # define fonts used for plotting
-    font_axes = {'family': 'serif',
-            'weight': 'normal',
-            'size': 12}
-    font_title = {'family': 'serif',
-                  'weight': 'normal',
-            'size': 14}       
-    
-    # define colors and markers used for plotting
-    n = len(p_fit)
-    colors = pl.cm.ocean(np.linspace(0,.75,n))
-    markers = ['o','s','D','v']    
-    
-    # create plot of raw data and fitted curve
-    fig1, ax1 = plt.subplots()
-    ax1.plot(x,y,'wo',markeredgecolor='black',label='Raw data')
-    ax1.plot(x,y_fit,'r--',label='Fitted curve',linewidth=2)
-    ax1.set_xlabel('t',fontdict=font_axes)
-    ax1.set_ylabel('y(t)',fontdict=font_axes)
-    ax1.set_title('Data fitting',fontdict=font_title)
-    ax1.legend()
-    
-    # create plot showing convergence of parameters
-    fig2, ax2 = plt.subplots()
-    for i in range(n):
-        ax2.plot(cvg_hst[:,0],p_hst[:,i]/p_hst[0,i],color=colors[i],marker=markers[i],
-                 linestyle='-',markeredgecolor='black',label='p'+'${_%i}$'%(i+1))
-    ax2.set_xlabel('Function calls',fontdict=font_axes)
-    ax2.set_ylabel('Values (norm.)',fontdict=font_axes)
-    ax2.set_title('Convergence of parameters',fontdict=font_title) 
-    ax2.legend()
-    
-    # create plot showing histogram of residuals
-    fig3, ax3 = plt.subplots()
-    sns.histplot(ax=ax3,data=y_fit-y,color='deepskyblue')
-    ax3.set_xlabel('Residual error',fontdict=font_axes)
-    ax3.set_ylabel('Frequency',fontdict=font_axes)
-    ax3.set_title('Histogram of residuals',fontdict=font_title)
-    
-    # create plot showing objective function surface plot
-    fig4, ax4 = plt.subplots(subplot_kw={"projection": "3d"})
-    # define range of values for gridded parameter search
-    p2 = np.arange(0.1*p_fit[1], 2.5*p_fit[1], 0.1)
-    p4 = np.arange(0.1*p_fit[3], 2.5*p_fit[3], 0.1)
-    X2 = np.zeros((len(p4),len(p2)))
-    # gridded parameter search
-    for i in range(len(p2)):
-        for j in range(len(p4)):
-            pt = np.array([[p_hst[-1,0],p2[i],p_hst[-1,2],p4[j]]]).T
-            delta_y = y - lm_func(x,pt)
-            X2[j,i] = np.log((delta_y.T @ delta_y)/(len(x)-len(p_fit)))    
-    p2_grid, p4_grid = np.meshgrid(p2, p4)
-    # make surface plot
-    ax4.plot_surface(p2_grid, p4_grid, X2, cmap='coolwarm', antialiased=True)
-    ax4.set_xlabel('P$_2$',fontdict=font_axes)
-    ax4.set_ylabel('P$_4$',fontdict=font_axes)
-    ax4.set_zlabel('log$_{10}$($\chi$$^2$)',fontdict=font_axes,rotation=90)
-    ax4.set_title('Objective Function',fontdict=font_title)
-    ax4.zaxis.set_rotate_label(False)
-    ax4.azim = 225
-"""

@@ -37,8 +37,6 @@ def main(x,y,p_init):
     # minimize sum of weighted squared residuals with L-M least squares analysis
     p_fit,Chi_sq,sigma_p,sigma_y,corr,R_sq,cvg_hst = LM.lm(p_init,x,y)
     
-    # plot results of L-M least squares analysis
-    LM.make_lm_plots(x, y, cvg_hst)
     
     return p_fit,Chi_sq,sigma_p,sigma_y,corr,R_sq,cvg_hst
 #%%
@@ -101,8 +99,15 @@ x = datos_generales["Ages"][40:60]
 x = x.T
 y = datos_generales["1933-1939"][40:60]
 
-p_init = np.array([[0.008,0.06]]).T
+p_init = np.array([[0.001,0.09]]).T
 
 p_fit,Chi_sq,sigma_p,sigma_y,corr,R_sq,cvg_hst = main(x,y,p_init)
 
+# %%
+plt.scatter(x, y)
+estimacion = []
+for i in x:
+    nuevo = 0.0039*np.e**(0.075*i)
+    estimacion.append(nuevo)
+plt.plot(x,estimacion )
 # %%
