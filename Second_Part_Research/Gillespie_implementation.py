@@ -4,6 +4,7 @@ from scipy.integrate import odeint
 import numpy as np
 import matplotlib.pyplot as plt
 #%%
+global N_total, tiempo_maximo, a, b, r, s, C, mu
 def damage_Rate(a,b,time):
     """
     Args:
@@ -39,14 +40,11 @@ def mortality_Rate(mu, C, N_individual):
         _type_: _description_
     """
     return mu*(N_individual/N_total)**C
-
 def modelo_constitutivo(a,b,r,s, mu, C, time, N_individual):
     damage_propensity = ((N_total - N_individual)/(N_total))*damage_Rate(a,b,time)
     Repair_propensity = ((N_individual)/(N_total))*repair_Rate(r,s,time)
     Mortality_propensity = mortality_Rate(mu, C, N_individual)
-    return damage_propensity, Repair_propensity, Mortality_propensity, 
-
-global N_total, tiempo_maximo, a, b, r, s, C, mu
+    return damage_propensity, Repair_propensity, Mortality_propensity
 
 def Gillespie(trp0,tmax):
     """
@@ -91,17 +89,17 @@ def Estado_celula(X0,tiempos):
     return X
 #%%
 tiempo_maximo = 100
-N_total = 200
+N_total = 20
 a = 0.03*N_total
 b = 0.09
 r = 0.8*N_total
 s = 1/tiempo_maximo
 C = 1.87
-mu = 0.0
+mu = 0.2
 initial_condition = 0.1
 
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 1000 #número de células 
+num_cel = 10000 #número de células 
 celulas = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in tqdm(range(num_cel))])
 
 suma = np.nansum(celulas[:, :, 1], axis=0)
@@ -139,5 +137,9 @@ plt.plot(t, f_solution, label='ODEs solution', color = "Green")
 plt.xlabel(r"Time [Years]", fontsize = 14)
 plt.ylabel(r"Frailty Index", fontsize = 14)
 plt.legend()
+
+
 # %%
-#Visualización de Frailty Index distribuciones
+plt.hist(celulas[:,99,1]/N_total)
+plt.xlim(0,1)
+# %%
