@@ -92,7 +92,6 @@ def Gillespie(trp0,tmax):
             None
     return np.array([time, N_individual, died ]) 
 def Estado_celula(X0,tiempos):
-
     X = np.zeros((len(tiempos),len(X0)))
     X[0] = X0
     
@@ -110,15 +109,14 @@ s = (1/tiempo_maximo)
 C = 2.87
 initial_condition = 0.04
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 10 #número de células 
+num_cel = 10000 #número de células 
 
 valores_de_mu = np.linspace(0.01, 0.9, 90)
 array_principal = np.zeros((len(valores_de_mu),) + (num_cel,tiempo_maximo,3 ))
 
 #%%
 for posicion_mu, mu in enumerate(tqdm(valores_de_mu)):
-
     array_principal[posicion_mu] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
 #%%
-np.save('Simulacion_modificacion_tasa_mortalidad.npy', array_principal)
-# %%
+np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_mortalidad.npy', array_principal)
+
