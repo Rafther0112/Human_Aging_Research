@@ -1,3 +1,19 @@
+""" 
+Aqui vamos a hacer la experimentación para modificar el coeficiente de mortalidad mu y mirar la variación que presenta el frailty index con respecto a la
+solución del sistema de ecuaciones diferenciales no acoplado con la mortalidad. 
+Vamos a evidenciar que hay una tendencia a los datos aplanarse antes del tiempo cuando se aumenta el coeficiente de mortalidad. 
+
+tiempo_maximo = 100
+N_total = 100
+a = 0.02*N_total
+b = 0.09
+r = 0.9*N_total
+s = (1/tiempo_maximo)
+C = 2.87
+initial_condition = 0.04
+
+Vamos a modificar mu 
+"""
 #%%
 from tqdm import tqdm
 from scipy.integrate import odeint
@@ -87,71 +103,22 @@ def Estado_celula(X0,tiempos):
 #%%
 tiempo_maximo = 100
 N_total = 100
-a = 0.1*N_total
+a = 0.05*N_total
 b = 0.09
 r = 0.9*N_total
 s = (1/tiempo_maximo)
-C = 0
-mu = 0.0
+C = 2.87
 initial_condition = 0.04
-
-
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 1000 #número de células 
-celulas = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in tqdm(range(num_cel))])
+num_cel = 10 #número de células 
 
-suma = np.nansum(celulas[:, :, 1], axis=0)
-longitud_valida = np.sum(~np.isnan(celulas[:, :, 1]), axis=0)
-promedio_curva_frailty_index = np.divide(suma, longitud_valida, out=np.zeros_like(suma), where=longitud_valida != 0)
+valores_de_mu = np.linspace(0.01, 0.9, 90)
+array_principal = np.zeros((len(valores_de_mu),) + (num_cel,tiempo_maximo,3 ))
 
-
-def frailty_index_differential_equation(f, t, a, b, r, s):
-    dfdt = a * (1 - f) * (1 + b * t) - f * r * (1 - s * t)
-    return dfdt
-
-t = np.linspace(0, tiempo_maximo, 201)  # 100 time steps from 0 to 10
-f_solution = odeint(frailty_index_differential_equation, initial_condition, t, args=(a, b, r, s)) #Solution of the differential equation using Odeint
-
-
-plt.figure()
-plt.title(r"Frailty Index of population ", fontsize = 16)
-plt.plot(promedio_curva_frailty_index/N_total, label = rf"GS N = {N_total} , $\mu_0$ = 0", color = "red")
-plt.plot(t, f_solution, label='ODEs solution')
-plt.xlabel(r"Time [Years]", fontsize = 14)
-plt.ylabel(r"Frailty Index", fontsize = 14)
-plt.legend()
-#plt.savefig("Differents_Values_Mortality.jpg", dpi = 1000)
-
-# %%
-mortality_data = []
-for i in np.arange(0,100):
-    mortality_data.append(np.sum(celulas[:,i,2]))
-mortality_data = np.array(mortality_data)
-# %%
-
-# %%
-def frailty_index_differential_equation(f, t, a, b, r, s):
-    dfdt = (1 - f)*a*(1 + b*t) - f*r*(1 - s*t)
-    return dfdt
-
-t = np.linspace(0, tiempo_maximo, 201)  # 100 time steps from 0 to 10
-f_solution = odeint(frailty_index_differential_equation, initial_condition, t, args=(a, b, r, s)) #Solution of the differential equation using Odeint
-mu = 0.5
-gompertz_law = mu*(f_solution**C)
 #%%
+for posicion_mu, mu in enumerate(tqdm(valores_de_mu)):
 
-plt.figure()
-plt.title(r"Mortality Rate  of population ", fontsize = 16)
-plt.plot(mortality_data[0:-1]/num_cel, label = rf"GS N = {N_total} , $\mu_0$ = 0.01", color = "crimson")
-
-plt.xlabel(r"Time [Years]", fontsize = 14)
-plt.ylabel(r"Mortality Rate", fontsize = 14)
-plt.legend()
-plt.savefig("Mortality_Curve_scolanada.jpg", dpi = 1000)
-# %%
-
-# %%
-t = np.linspace(0, tiempo_maximo, 201)
-# %%
-t
+    array_principal[posicion_mu] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
+#%%
+np.save('Simulacion_modificacion_tasa_mortalidad.npy', array_principal)
 # %%
