@@ -1,5 +1,5 @@
 """ 
-Aqui vamos a hacer la experimentación para modificar el coeficiente de mortalidad mu y mirar la variación que presenta el frailty index con respecto a la
+Aqui vamos a hacer la experimentación para modificar el exponente de mortalidad C y mirar la variación que presenta el frailty index con respecto a la
 solución del sistema de ecuaciones diferenciales no acoplado con la mortalidad. 
 Vamos a evidenciar que hay una tendencia a los datos aplanarse antes del tiempo cuando se aumenta el coeficiente de mortalidad. 
 
@@ -8,11 +8,10 @@ N_total = 100
 a = 0.02*N_total
 b = 0.09
 r = 0.9*N_total
-s = (1/tiempo_maximo)
-C = 2.87
+mu = 0.5
 initial_condition = 0.04
 
-Vamos a modificar mu 
+Vamos a modificar C entre 1 y 10 
 """
 #%%
 from tqdm import tqdm
@@ -106,17 +105,17 @@ a = 0.05*N_total
 b = 0.09
 r = 0.9*N_total
 s = (1/tiempo_maximo)
-C = 2.87
+mu = 0.5
 initial_condition = 0.04
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 1000 #número de células 
+num_cel = 10000 #número de células 
 
-valores_de_mu = np.linspace(0.01, 0.9, 90)
-array_principal = np.zeros((len(valores_de_mu),) + (num_cel,tiempo_maximo,3 ))
+valores_de_C = np.linspace(1, 10, 19)
+array_principal = np.zeros((len(valores_de_C),) + (num_cel,tiempo_maximo,3 ))
 
 #%%
-for posicion_mu, mu in enumerate(tqdm(valores_de_mu)):
-    array_principal[posicion_mu] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
+for posicion_C, C in enumerate(tqdm(valores_de_C)):
+    array_principal[posicion_C] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
 #%%
-np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_mortalidad.npy', array_principal)
+np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_exponente_mortalidad.npy', array_principal)
 
