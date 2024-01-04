@@ -45,13 +45,11 @@ def modelo_constitutivo(a,b,r,s, mu, C, time, N_individual):
     Repair_propensity = ((N_individual)/(N_total))*repair_Rate(r,s,time)
     Mortality_propensity = mortality_Rate(mu, C, N_individual)
     return damage_propensity, Repair_propensity, Mortality_propensity
-
 def Gillespie(trp0,tmax):
     """
     Esta funcion se emplea solamente para hacer la evolución de un paso individual en el individuo. Evoluciona no un paso temporal, 
     pero si temporalmente la cantidad de veces que pueda evolucionar antes del tmax en una corrida
     """
-
     time , N_individual, died  =trp0 
 
     while time < tmax and not died:
@@ -61,7 +59,7 @@ def Gillespie(trp0,tmax):
         τ = (-1/maximum_rate)*np.log(np.random.rand())
         time+=τ
 
-        if np.random.rand() > np.abs(maximum_rate - S_T)/maximum_rate:
+        if time < tmax and np.random.rand() > np.abs(maximum_rate - S_T)/maximum_rate:
             
             x = np.random.rand()
         
@@ -77,7 +75,6 @@ def Gillespie(trp0,tmax):
         else: 
             None
     return np.array([time, N_individual, died ]) 
-
 def Estado_celula(X0,tiempos):
 
     X = np.zeros((len(tiempos),len(X0)))
@@ -89,57 +86,72 @@ def Estado_celula(X0,tiempos):
     return X
 #%%
 tiempo_maximo = 100
-N_total = 20
-a = 0.03*N_total
+N_total = 100
+a = 0.1*N_total
 b = 0.09
-r = 0.8*N_total
-s = 1/tiempo_maximo
-C = 1.87
-mu = 0.2
-initial_condition = 0.1
+r = 0.9*N_total
+s = (1/tiempo_maximo)
+C = 0
+mu = 0.0
+initial_condition = 0.04
+
 
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 10000 #número de células 
+num_cel = 1000 #número de células 
 celulas = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in tqdm(range(num_cel))])
 
 suma = np.nansum(celulas[:, :, 1], axis=0)
 longitud_valida = np.sum(~np.isnan(celulas[:, :, 1]), axis=0)
 promedio_curva_frailty_index = np.divide(suma, longitud_valida, out=np.zeros_like(suma), where=longitud_valida != 0)
 
-"""
-plt.figure(figsize=(8,5))
-plt.title(r"Frailty Index Stochastic Simulation", fontsize = 16)
-plt.xlabel(r"Time [?]", fontsize = 14)
-plt.ylabel(r"Frailty Index", fontsize = 14)
-plt.plot(np.arange(0.,tiempo_maximo,1.), promedio_curva_frailty_index/N_total, label = "Average")
-plt.legend()
-"""
 
 def frailty_index_differential_equation(f, t, a, b, r, s):
     dfdt = a * (1 - f) * (1 + b * t) - f * r * (1 - s * t)
     return dfdt
 
-t = np.linspace(0, tiempo_maximo, 200)  # 100 time steps from 0 to 10
+t = np.linspace(0, tiempo_maximo, 201)  # 100 time steps from 0 to 10
 f_solution = odeint(frailty_index_differential_equation, initial_condition, t, args=(a, b, r, s)) #Solution of the differential equation using Odeint
 
-"""
-plt.plot(t, f_solution, label='Frailty Index')
-plt.xlabel(r'Time')
-plt.ylabel(r'Frailty Index')
-plt.title(r'Frailty Index')
-plt.legend()
-"""
 
 plt.figure()
 plt.title(r"Frailty Index of population ", fontsize = 16)
-plt.plot(promedio_curva_frailty_index/N_total, label = "Gillespie Simulation", color = "red")
-plt.plot(t, f_solution, label='ODEs solution', color = "Green")
+plt.plot(promedio_curva_frailty_index/N_total, label = rf"GS N = {N_total} , $\mu_0$ = 0", color = "red")
+plt.plot(t, f_solution, label='ODEs solution')
 plt.xlabel(r"Time [Years]", fontsize = 14)
 plt.ylabel(r"Frailty Index", fontsize = 14)
 plt.legend()
-
+#plt.savefig("Differents_Values_Mortality.jpg", dpi = 1000)
 
 # %%
-plt.hist(celulas[:,99,1]/N_total)
-plt.xlim(0,1)
+mortality_data = []
+for i in np.arange(0,100):
+    mortality_data.append(np.sum(celulas[:,i,2]))
+mortality_data = np.array(mortality_data)
+# %%
+
+# %%
+def frailty_index_differential_equation(f, t, a, b, r, s):
+    dfdt = (1 - f)*a*(1 + b*t) - f*r*(1 - s*t)
+    return dfdt
+
+t = np.linspace(0, tiempo_maximo, 201)  # 100 time steps from 0 to 10
+f_solution = odeint(frailty_index_differential_equation, initial_condition, t, args=(a, b, r, s)) #Solution of the differential equation using Odeint
+mu = 0.5
+gompertz_law = mu*(f_solution**C)
+#%%
+
+plt.figure()
+plt.title(r"Mortality Rate  of population ", fontsize = 16)
+plt.plot(mortality_data[0:-1]/num_cel, label = rf"GS N = {N_total} , $\mu_0$ = 0.01", color = "crimson")
+
+plt.xlabel(r"Time [Years]", fontsize = 14)
+plt.ylabel(r"Mortality Rate", fontsize = 14)
+plt.legend()
+plt.savefig("Mortality_Curve_scolanada.jpg", dpi = 1000)
+# %%
+
+# %%
+t = np.linspace(0, tiempo_maximo, 201)
+# %%
+t
 # %%
