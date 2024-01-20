@@ -41,8 +41,8 @@ def mortality_Rate(mu, C, N_individual):
     """
     return mu*(N_individual/N_total)**C
 def modelo_constitutivo(a,b,r,s, mu, C, time, N_individual):
-    damage_propensity = ((N_total - N_individual)/(N_total))*damage_Rate(a,b,time)
-    Repair_propensity = ((N_individual)/(N_total))*repair_Rate(r,s,time)
+    damage_propensity = ((N_total - N_individual))*damage_Rate(a,b,time)
+    Repair_propensity = ((N_individual))*repair_Rate(r,s,time)
     Mortality_propensity = mortality_Rate(mu, C, N_individual)
     return damage_propensity, Repair_propensity, Mortality_propensity
 def Gillespie(trp0,tmax):
@@ -55,7 +55,7 @@ def Gillespie(trp0,tmax):
     while time < tmax and not died:
         s_1, s_2, s_3  =  modelo_constitutivo(a,b,r,s, mu, C, time, N_individual)
         S_T = s_1 + s_2 + s_3 
-        maximum_rate = ((N_total - N_individual)/(N_total))*damage_Rate(a,b,tiempo_maximo) + ((N_individual)/(N_total))*repair_Rate(r,s,0) + s_3 
+        maximum_rate = ((N_total - N_individual))*damage_Rate(a,b,tiempo_maximo) + ((N_individual))*repair_Rate(r,s,0) + s_3 
         τ = (-1/maximum_rate)*np.log(np.random.rand())
         time+=τ
 
@@ -85,19 +85,33 @@ def Estado_celula(X0,tiempos):
     
     return X
 #%%
+
 tiempo_maximo = 100
-N_total = 100
-a = 0.1*N_total
+N_total = 10
 b = 0.09
-r = 0.9*N_total
 s = (1/tiempo_maximo)
-C = 0
-mu = 0.0
-initial_condition = 0.04
-
-
+C = 2.87
+mu = 0.
+a = 0.005
+initial_condition = 0.0
 x0 = np.array([0., N_total*initial_condition, 0.])
 num_cel = 1000 #número de células 
+
+valores_de_r = np.linspace(0.1, 0.99, 101)
+array_principal = np.zeros((len(valores_de_r),) + (num_cel,tiempo_maximo,3 ))
+
+
+
+
+
+r = 0.8
+
+
+
+
+
+
+
 celulas = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in tqdm(range(num_cel))])
 
 suma = np.nansum(celulas[:, :, 1], axis=0)

@@ -109,7 +109,7 @@ s = (1/tiempo_maximo)
 C = 2.87
 initial_condition = 0.04
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 1000 #número de células 
+num_cel = 3000 #número de células 
 
 valores_de_mu = np.linspace(0.01, 0.9, 90)
 array_principal = np.zeros((len(valores_de_mu),) + (num_cel,tiempo_maximo,3 ))
