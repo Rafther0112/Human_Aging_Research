@@ -1,5 +1,5 @@
 """ 
-Aqui vamos a hacer la experimentación para modificar el coeficiente de daño a y mirar la variación que presenta el frailty index con respecto a la
+Aqui vamos a hacer la experimentación para modificar el coeficiente de recuperación r y mirar la variación que presenta el frailty index con respecto a la
 solución del sistema de ecuaciones diferenciales no acoplado con la mortalidad. 
 Vamos a evidenciar que hay una tendencia a los datos aplanarse antes del tiempo cuando se aumenta el coeficiente de mortalidad. 
 
@@ -12,7 +12,7 @@ s = (1/tiempo_maximo)
 C = 2.87
 initial_condition = 0.04
 
-Vamos a modificar mu 
+Vamos a modificar r 
 """
 #%%
 from tqdm import tqdm
@@ -57,8 +57,8 @@ def mortality_Rate(mu, C, N_individual):
     """
     return mu*(N_individual/N_total)**C
 def modelo_constitutivo(a,b,r,s, mu, C, time, N_individual):
-    damage_propensity = ((N_total - N_individual)/(N_total))*damage_Rate(a,b,time)
-    Repair_propensity = ((N_individual)/(N_total))*repair_Rate(r,s,time)
+    damage_propensity = ((N_total - N_individual))*damage_Rate(a,b,time)
+    Repair_propensity = ((N_individual))*repair_Rate(r,s,time)
     Mortality_propensity = mortality_Rate(mu, C, N_individual)
     return damage_propensity, Repair_propensity, Mortality_propensity
 def Gillespie(trp0,tmax):
@@ -71,7 +71,7 @@ def Gillespie(trp0,tmax):
     while time < tmax and not died:
         s_1, s_2, s_3  =  modelo_constitutivo(a,b,r,s, mu, C, time, N_individual)
         S_T = s_1 + s_2 + s_3 
-        maximum_rate = ((N_total - N_individual)/(N_total))*damage_Rate(a,b,tiempo_maximo) + ((N_individual)/(N_total))*repair_Rate(r,s,0) + s_3 
+        maximum_rate = ((N_total - N_individual))*damage_Rate(a,b,tiempo_maximo) + ((N_individual))*repair_Rate(r,s,0) + s_3 
         τ = (-1/maximum_rate)*np.log(np.random.rand())
         time+=τ
 
@@ -103,23 +103,25 @@ def Estado_celula(X0,tiempos):
 tiempo_maximo = 100
 N_total = 100
 b = 0.09
-r = 0.9*N_total
 s = (1/tiempo_maximo)
 C = 2.87
 mu = 0.2
+a = 0.05
 initial_condition = 0.04
 x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 10000 #número de células 
+num_cel = 1000 #número de células 
 
-valores_de_a = np.linspace(0.001, 0.1, 100)
-array_principal = np.zeros((len(valores_de_a),) + (num_cel,tiempo_maximo,3 ))
+valores_de_r = np.linspace(0.1, 1, 10)
+array_principal = np.zeros((len(valores_de_r),) + (num_cel,tiempo_maximo,3 ))
 
 #%%
-for posicion_a, a in enumerate(tqdm(valores_de_a)):
-    a = a*N_total
-    array_principal[posicion_a] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
-
-    np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_daño_exogeno_A.npy', array_principal)
+for posicion_r, r in enumerate(tqdm(valores_de_r)):
+    array_principal[posicion_r] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
 #%%
-
-
+    np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_reparación_R_nuevo.npy', array_principal)
+#%%
+array_principal.shape
+# %%
+valores_de_r = np.linspace(0.1, 1, 10)
+valores_de_r
+# %%
