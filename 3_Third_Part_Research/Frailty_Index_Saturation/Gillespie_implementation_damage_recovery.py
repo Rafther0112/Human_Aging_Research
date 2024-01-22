@@ -1,10 +1,8 @@
 """ 
-Aqui vamos a hacer la experimentación para modificar el coeficiente de recuperación r y mirar la variación que presenta el frailty index con respecto a la
-solución del sistema de ecuaciones diferenciales no acoplado con la mortalidad. 
-Vamos a evidenciar que hay una tendencia a los datos aplanarse antes del tiempo cuando se aumenta el coeficiente de mortalidad. 
+Here we will try to explain the main reason of the frailty index maximum limit. Therefore we will change the mortality rate in the stochastic process
 
 tiempo_maximo = 100
-N_total = 100
+N_total = 50
 a = 0.02*N_total
 b = 0.09
 r = 0.9*N_total
@@ -12,7 +10,7 @@ s = (1/tiempo_maximo)
 C = 2.87
 initial_condition = 0.04
 
-Vamos a modificar r 
+Vamos a modificar mu 
 """
 #%%
 from tqdm import tqdm
@@ -105,23 +103,21 @@ N_total = 100
 b = 0.09
 s = (1/tiempo_maximo)
 C = 2.87
-mu = 0.2
-a = 0.05
-initial_condition = 0.04
-x0 = np.array([0., N_total*initial_condition, 0.])
-num_cel = 1000 #número de células 
+mu = 0.6
 
-valores_de_r = np.linspace(0.1, 1, 10)
-array_principal = np.zeros((len(valores_de_r),) + (num_cel,tiempo_maximo,3 ))
+
+
+initial_condition = 0.045
+x0 = np.array([20.44, int(N_total*initial_condition), 0.])
+num_cel = 200 #número de células 
+
+valores_de_damage = np.arange(0.02, 0.08, 0.001)
+valores_de_recovery = np.arange(0.000, 1, 0.02)
+array_principal = np.zeros((len(valores_de_damage),) + (len(valores_de_recovery),) + (num_cel,80,3 ))
 
 #%%
-for posicion_r, r in enumerate(tqdm(valores_de_r)):
-    array_principal[posicion_r] = np.array([Estado_celula(x0,np.arange(0.,tiempo_maximo,1.)) for i in (range(num_cel))])
-#%%
-    np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_reparación_R_nuevo.npy', array_principal)
-#%%
-array_principal.shape
-# %%
-valores_de_r = np.linspace(0.1, 1, 10)
-valores_de_r
+for posicion_damage, a in enumerate(tqdm(valores_de_damage)):
+    for posicion_recovery, r in enumerate(tqdm((valores_de_recovery))):
+        array_principal[posicion_damage][posicion_recovery] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
+        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Recovery_conmu_seis.npy', array_principal)
 # %%
