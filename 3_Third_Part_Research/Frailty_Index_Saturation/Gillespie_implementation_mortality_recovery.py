@@ -107,7 +107,7 @@ C = 2.87
 
 initial_condition = 0.045
 x0 = np.array([20.44, int(N_total*initial_condition), 0.])
-num_cel = 10000 #número de células 
+num_cel = 4000 #número de células 
 
 valores_de_mu = np.arange(0.5, 1, 0.01)
 valores_de_recovery = np.arange(0.000, 1, 0.02)
@@ -117,5 +117,5 @@ array_principal = np.zeros((len(valores_de_mu),) + (len(valores_de_recovery),) +
 for posicion_mu, mu in enumerate(tqdm(valores_de_mu)):
     for posicion_recovery, r in enumerate(tqdm((valores_de_recovery))):
         array_principal[posicion_mu][posicion_recovery] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
-        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Recovery_Mortalidad_FINAL.npy', array_principal)
+        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Recovery_Mortalidad_final.npy', array_principal)
 
