@@ -11,13 +11,22 @@ damage_repair_cross_experimentation = np.load('/Users/rafther0112/Documents/GitH
 # %%
 frailty_index_curves_General = []
 for mortalidad_fija in tqdm(damage_repair_cross_experimentation):
-    frailty_index_curves = []
-    for celulas in mortalidad_fija:
-        suma = np.nansum(celulas[:, :, 1], axis=0)
-        longitud_valida = np.sum(~np.isnan(celulas[:, :, 1]), axis=0)
-        promedio_curva_frailty_index = np.divide(suma, longitud_valida, out=np.zeros_like(suma), where=longitud_valida != 0)
-        frailty_index_curves.append(promedio_curva_frailty_index)
-    frailty_index_curves_General.append(frailty_index_curves)
+    frailty_curves_general = []
+    for frailty_curves in mortalidad_fija:
+        curva_temporal = []
+        for tiempo in np.arange(0,80):
+            valor_frailty_tiempo_especifico = 0
+            contador_frailty_especifico = 0
+            for persona in np.arange(0,200):
+                if frailty_curves[persona, tiempo, 2] != 1:
+                    valor_frailty_tiempo_especifico += frailty_curves[persona, tiempo, 1]
+                    contador_frailty_especifico += 1
+            if  contador_frailty_especifico == 0:
+                curva_temporal.append(-1)
+            else:
+                curva_temporal.append(valor_frailty_tiempo_especifico/contador_frailty_especifico)
+        frailty_curves_general.append(curva_temporal)
+    frailty_index_curves_General.append(frailty_curves_general)
 frailty_index_curves_General = np.array(frailty_index_curves_General)/100
 #%%
 valores_de_damage = np.arange(0.02, 0.08, 0.001)
@@ -34,17 +43,23 @@ for posicion_damage in range(len(valores_de_damage)):
     posicion_recovery = 0
 
     fig, ax = plt.subplots(figsize = (8,5))
-    ax.set_title(r"Frailty Index with different mortality and recovery rates" + "\n" + fr"# Nodes: {100} | a: {0.05} | b: {0.09} | s: {0.01} | c: {2.87} | mu: {0.03}" + "\n" + f" Damage: {round(valores_de_damage[posicion_damage],3)}")
+    ax.set_title(r"Frailty Index with different mortality and recovery rates" + "\n" + fr"# Nodes: {100} | a: {0.05} | b: {0.09} | s: {0.01} | c: {2.87} | mu: {0.6}" + "\n" + f" Damage: {round(valores_de_damage[posicion_damage],3)}")
     ax.set_xlabel(r'Time', fontsize = 14)
     ax.set_ylabel(r'Frailty Index', fontsize = 14)
     ax.set_ylim(0,1)
     ax.axhline(y = 0.7, color = "red")
-    ax.axhline(y = np.max(frailty_index_curves_General[posicion_damage][posicion_recovery]), color = "green")
-
+    #ax.axhline(y = np.max(frailty_index_curves_General[posicion_damage][posicion_recovery]), color = "green")
 
     for i in range(len(valores_de_recovery)-posicion_recovery):
         color = cmap(valores_parametro[i])
-        ax.plot(np.arange(20,100,1),frailty_index_curves_General[posicion_damage][posicion_recovery+i], color = color, label = f" Mortality: {valores_de_mu[posicion_damage]}" + "\n" + f"Recovery: {round(valores_de_recovery[posicion_recovery+i],3)}")
+
+        if -0.01 in frailty_index_curves_General[posicion_damage][posicion_recovery+i]:
+            first_zero_index = np.argmax(frailty_index_curves_General[posicion_damage][posicion_recovery+i] == -0.01)
+            ax.plot(np.arange(20,100,1)[:first_zero_index],frailty_index_curves_General[posicion_damage][posicion_recovery+i][:first_zero_index], color = color, label = f" Mortality: {valores_de_damage[posicion_damage]}" + "\n" + f"Recovery: {round(valores_de_recovery[posicion_recovery+i],3)}")
+        else:
+            ax.plot(np.arange(20,100,1),frailty_index_curves_General[posicion_damage][posicion_recovery+i], color = color, label = f" Mortality: {valores_de_mu[posicion_damage]}" + "\n" + f"Recovery: {round(valores_de_recovery[posicion_recovery+i],3)}")
+ 
+
     norm = Normalize(vmin=0.000, vmax=1)  # Ajusta los límites del color según tus necesidades
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # Necesario para que funcione el colorbar

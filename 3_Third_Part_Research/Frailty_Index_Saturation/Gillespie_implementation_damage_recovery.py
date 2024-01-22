@@ -103,7 +103,7 @@ N_total = 100
 b = 0.09
 s = (1/tiempo_maximo)
 C = 2.87
-mu = 0.6
+mu = 0.9
 
 
 
@@ -112,7 +112,7 @@ x0 = np.array([20.44, int(N_total*initial_condition), 0.])
 num_cel = 200 #número de células 
 
 valores_de_damage = np.arange(0.02, 0.08, 0.001)
-valores_de_recovery = np.arange(0.000, 1, 0.02)
+valores_de_recovery = np.arange(0.000, 2, 0.02)
 array_principal = np.zeros((len(valores_de_damage),) + (len(valores_de_recovery),) + (num_cel,80,3 ))
 
 #%%
