@@ -3,10 +3,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
-
+from tqdm import tqdm
 #%%
 mortality_rate_modification = np.load('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_modificacion_tasa_mortalidad.npy', allow_pickle=True)
-
+#%%
+frailty_curves_general = []
+for frailty_curves in tqdm(mortality_rate_modification):
+    curva_temporal = []
+    for tiempo in np.arange(0,100):
+        valor_frailty_tiempo_especifico = 0
+        contador_frailty_especifico = 0
+        for persona in np.arange(0,3000):
+            if frailty_curves[persona, tiempo, 2] != 1:
+                valor_frailty_tiempo_especifico += frailty_curves[persona, tiempo, 1]
+                contador_frailty_especifico += 1
+        if  contador_frailty_especifico == 0:
+            curva_temporal.append(0)
+        else:
+            curva_temporal.append(valor_frailty_tiempo_especifico/contador_frailty_especifico)
+    frailty_curves_general.append(curva_temporal)
+frailty_curves_general = np.array(frailty_curves_general)
+#%%
+plt.scatter(np.arange(0,100),frailty_curves_general[5])
+plt.scatter(np.arange(0,100),frailty_curves_general[-15])
+#%%
+#persona especifica, tiempo especifico, indicativo especifico
+mortality_rate_modification[0][7, 90, 2]
 # %%
 frailty_index_curves = []
 for celulas in mortality_rate_modification:
