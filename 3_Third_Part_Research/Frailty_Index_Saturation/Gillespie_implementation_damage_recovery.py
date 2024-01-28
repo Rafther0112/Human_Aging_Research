@@ -109,15 +109,15 @@ mu = 0.9
 
 initial_condition = 0.045
 x0 = np.array([20.44, int(N_total*initial_condition), 0.])
-num_cel = 200 #número de células 
+num_cel = 2000 #número de células 
 
-valores_de_damage = np.arange(0.02, 0.08, 0.001)
-valores_de_recovery = np.arange(0.000, 2, 0.02)
+valores_de_damage = np.arange(0.04, 0.1, 0.001)
+valores_de_recovery = np.arange(0.000, 1, 0.02)
 array_principal = np.zeros((len(valores_de_damage),) + (len(valores_de_recovery),) + (num_cel,80,3 ))
 
 #%%
 for posicion_damage, a in enumerate(tqdm(valores_de_damage)):
     for posicion_recovery, r in enumerate(tqdm((valores_de_recovery))):
         array_principal[posicion_damage][posicion_recovery] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
-        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Recovery_conmu_seis.npy', array_principal)
+        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Recovery_conmu_final.npy', array_principal)
 # %%
