@@ -103,7 +103,9 @@ N_total = 100
 b = 0.09
 s = (1/tiempo_maximo)
 C = 2.87
-r = 0.6
+r = 0.3
+# r = 0.8 Valor de la primera simulacion
+# r = 0.6 Valor de la segunda simulacion
 
 initial_condition = 0.045
 x0 = np.array([20.44, int(N_total*initial_condition), 0.])
@@ -117,5 +119,5 @@ array_principal = np.zeros((len(valores_de_mu),) + (len(valores_de_damage),) + (
 for posicion_mortality, mu in enumerate(tqdm(valores_de_mu)):
     for posicion_damage, a in enumerate(tqdm((valores_de_damage))):
         array_principal[posicion_mortality][posicion_damage] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
-        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Mortality_final_seis_recover.npy', array_principal)
+        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Mortality_final_tres_recover.npy', array_principal)
 # %%
