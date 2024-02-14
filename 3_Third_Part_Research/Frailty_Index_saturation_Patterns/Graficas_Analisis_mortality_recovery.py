@@ -146,6 +146,6 @@ cax2 = divider2.append_axes("right", size="5%", pad=0.1)
 cbar2 = plt.colorbar(sm2, cax=cax2)
 cbar2.set_label('Mortality Rate')
 plt.tight_layout()
-plt.show()
+plt.savefig("Recovery_Damage_Saturation_Shape1.jpg", dpi = 200)
 
 #%%
