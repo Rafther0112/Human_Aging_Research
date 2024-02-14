@@ -7,7 +7,7 @@ a = 0.02*N_total
 b = 0.09
 r = 0.9*N_total
 s = (1/tiempo_maximo)
-C = 3
+C = 2.87
 initial_condition = 0.04
 
 Vamos a modificar mu 
@@ -102,21 +102,20 @@ tiempo_maximo = 100
 N_total = 100
 b = 0.09
 s = (1/tiempo_maximo)
-C = 3 #Esta C es la que se conoce como d en la primera
-
-r = 0.6 
+C = 3
+mu = 0.3 #Parametro que estamos modificando
 
 initial_condition = 0.045
 x0 = np.array([20.44, int(N_total*initial_condition), 0.])
 num_cel = 1000 #número de células 
 
-valores_de_mu = np.arange(0.5, 1, 0.01)
 valores_de_damage = np.arange(0.04, 0.1, 0.001)
-array_principal = np.zeros((len(valores_de_mu),) + (len(valores_de_damage),) + (num_cel,80,3 ))
+valores_de_recovery = np.arange(0.000, 1, 0.02)
+array_principal = np.zeros((len(valores_de_damage),) + (len(valores_de_recovery),) + (num_cel,80,3 ))
 
 #%%
-for posicion_mortality, mu in enumerate(tqdm(valores_de_mu)):
-    for posicion_damage, a in enumerate(tqdm((valores_de_damage))):
-        array_principal[posicion_mortality][posicion_damage] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
-        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Mortality_PowerLaw_6.npy', array_principal)
+for posicion_damage, a in enumerate(tqdm(valores_de_damage)):
+    for posicion_recovery, r in enumerate(tqdm((valores_de_recovery))):
+        array_principal[posicion_damage][posicion_recovery] = np.array([Estado_celula(x0,np.arange(20.,tiempo_maximo,1.)) for i in (range(num_cel))])
+        np.save('/Users/rafther0112/Documents/GitHub/AGING_RESULTS_SIMULATIONS/Simulacion_cruzado_Damage_Recovery_PowerLaw_3.npy', array_principal)
 # %%
