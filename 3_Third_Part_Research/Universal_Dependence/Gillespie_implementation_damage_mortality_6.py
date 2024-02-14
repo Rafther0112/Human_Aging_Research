@@ -104,7 +104,7 @@ b = 0.09
 s = (1/tiempo_maximo)
 C = 3 #Esta C es la que se conoce como d en la primera
 
-r = 0.6 Valor de la segunda simulacion
+r = 0.6 
 
 initial_condition = 0.045
 x0 = np.array([20.44, int(N_total*initial_condition), 0.])
